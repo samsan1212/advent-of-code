@@ -1,0 +1,8 @@
+{
+  "name": "advent-of-star",
+  "packageManager": "yarn@4.0.2",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^20.10.4"
+  }
+}
