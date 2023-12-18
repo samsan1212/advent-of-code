@@ -4,8 +4,7 @@ const inputList = inputFileText.trim().split("\n");
 
 let sum = 0;
 for (const input of inputList) {
-  const [gameStr, resultStr] = input.split(":");
-  const game = parseInt(gameStr.replace("Game ", ""));
+  const [_gameStr, resultStr] = input.split(":");
 
   const maxCube: Record<string, number> = {
     red: 0,
