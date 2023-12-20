@@ -1,10 +1,23 @@
 import { readMatrix } from "./utils.ts";
 
-const inputFilepath = new URL("./input.txt", import.meta.url).pathname;
+const inputFilepath = new URL("./sample.txt", import.meta.url).pathname;
 
 const matrix = await readMatrix(inputFilepath);
 
 const partNumberList: number[] = [];
+const gearCoordinateMap = new Map<string, [number, number][]>();
+
+for (let rowIndex = 0; rowIndex < matrix.length; rowIndex++) {
+  const row = matrix[rowIndex];
+  for (let colIndex = 0; colIndex < row.length; colIndex++) {
+    const cell = row[colIndex];
+    if (cell === "*") {
+      gearCoordinateMap.set([rowIndex, colIndex].join(","), []);
+    }
+  }
+}
+
+console.log([...gearCoordinateMap.keys()]);
 
 for (let rowIndex = 0; rowIndex < matrix.length; rowIndex++) {
   const row = matrix[rowIndex];
