@@ -1,11 +1,10 @@
 import { readMatrix } from "./utils.ts";
 
-const inputFilepath = new URL("./sample.txt", import.meta.url).pathname;
+const inputFilepath = new URL("./input.txt", import.meta.url).pathname;
 
 const matrix = await readMatrix(inputFilepath);
 
-const partNumberList: number[] = [];
-const gearCoordinateMap = new Map<string, [number, number][]>();
+const gearCoordinateMap = new Map<string, number[]>();
 
 for (let rowIndex = 0; rowIndex < matrix.length; rowIndex++) {
   const row = matrix[rowIndex];
@@ -16,8 +15,6 @@ for (let rowIndex = 0; rowIndex < matrix.length; rowIndex++) {
     }
   }
 }
-
-console.log([...gearCoordinateMap.keys()]);
 
 for (let rowIndex = 0; rowIndex < matrix.length; rowIndex++) {
   const row = matrix[rowIndex];
@@ -44,19 +41,54 @@ for (let rowIndex = 0; rowIndex < matrix.length; rowIndex++) {
 
   for (const numberCoordinate of numberCoordinateMap) {
     if (isPartNumber(matrix, numberCoordinate)) {
-      const partNumberString = numberCoordinate
-        .map(([rowIndex, colIndex]) => matrix[rowIndex][colIndex])
-        .join("");
-      partNumberList.push(parseInt(partNumberString));
+      checkIfNumberNearToGear(numberCoordinate);
     }
   }
 }
 
-let sum = 0;
-for (const partNumber of partNumberList) {
-  sum += partNumber;
+let sumOfGearRatio = 0;
+gearCoordinateMap.forEach((partNumberList) => {
+  if (partNumberList.length !== 2) return;
+  const [partNumber1, partNumber2] = partNumberList;
+  sumOfGearRatio += partNumber1 * partNumber2;
+});
+console.log(sumOfGearRatio);
+
+function checkIfNumberNearToGear(numberCoordinate: [number, number][]) {
+  const gearCoordinateKeySet = new Set(gearCoordinateMap.keys());
+  const matchedGearKeyList = new Set<string>();
+  for (const [rowIndex, colIndex] of numberCoordinate) {
+    const surroundingCoordinateStrList = [
+      [rowIndex - 1, colIndex - 1],
+      [rowIndex - 1, colIndex],
+      [rowIndex - 1, colIndex + 1],
+      [rowIndex, colIndex - 1],
+      [rowIndex, colIndex + 1],
+      [rowIndex + 1, colIndex - 1],
+      [rowIndex + 1, colIndex],
+      [rowIndex + 1, colIndex + 1],
+    ].map((coor) => coor.join(","));
+
+    const gearCoordinateKeyList = surroundingCoordinateStrList.filter((coor) =>
+      gearCoordinateKeySet.has(coor)
+    );
+    if (gearCoordinateKeyList.length === 0) continue;
+
+    gearCoordinateKeyList.forEach((gearCoordinateKey) => {
+      matchedGearKeyList.add(gearCoordinateKey);
+    });
+  }
+  const partNumberString = numberCoordinate
+    .map(([rowIndex, colIndex]) => matrix[rowIndex][colIndex])
+    .join("");
+  const partNumber = parseInt(partNumberString);
+
+  for (const gearCoordinateKey of matchedGearKeyList) {
+    const gearCoordinateList = gearCoordinateMap.get(gearCoordinateKey) ?? [];
+    gearCoordinateList.push(partNumber);
+    gearCoordinateMap.set(gearCoordinateKey, gearCoordinateList);
+  }
 }
-console.log(sum);
 
 function isPartNumber(
   matrix: string[][],
